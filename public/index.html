@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esports & Gaming Stats Dashboard</title>
+    <!-- Load Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* --- Global Styles & Resets --- */
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            /* Color Palette */
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            
+            --color-indigo-400: #818cf8;
+            --color-indigo-500: #6366f1;
+            --color-purple-500: #a855f7;
+            --color-pink-500: #ec4899;
+            
+            --color-yellow-100: #fef9c3;
+            --color-yellow-300: #fde047;
+            --color-yellow-600: #ca8a04;
+            --color-yellow-700: #a16207;
+
+            --color-green-100: #dcfce7;
+            --color-green-400: #4ade80;
+            --color-green-700: #15803d;
+
+            --color-red-100: #fee2e2;
+            --color-red-400: #f87171;
+            --color-red-700: #b91c1c;
+            --color-red-900: #7f1d1d;
+            
+            --color-white: #ffffff;
+            --color-black: #000000;
+            
+            /* --- Dark Theme (Default) --- */
+            --bg-color: var(--color-gray-900);
+            --text-color: var(--color-gray-200);
+            --text-color-light: var(--color-gray-400);
+            --text-color-heading: var(--color-gray-50);
+            --card-bg: var(--color-gray-800);
+            --border-color: var(--color-gray-700);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --chart-grid-color: var(--color-gray-700);
+            --chart-angle-color: var(--color-gray-600);
+            --chart-tick-backdrop: var(--color-gray-800);
+        }
+        
+        .light-theme {
+            /* --- Light Theme Overrides --- */
+            --bg-color: var(--color-gray-100);
+            --text-color: var(--color-gray-700);
+            --text-color-light: var(--color-gray-500);
+            --text-color-heading: var(--color-gray-900);
+            --card-bg: var(--color-white);
+            --border-color: var(--color-gray-300);
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --chart-grid-color: var(--color-gray-300);
+            --chart-angle-color: var(--color-gray-400);
+            --chart-tick-backdrop: var(--color-gray-100);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        body.modal-open {
+            overflow: hidden;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- Layout --- */
+        .container {
+            padding: 1rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                padding: 2rem;
+            }
+        }
+
+        header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        
+        header .title-group {
+            flex-basis: 100%;
+        }
+        
+        @media (min-width: 640px) {
+            header .title-group {
+                flex-basis: auto;
+            }
+        }
+
+        footer {
+            text-align: center;
+            color: var(--text-color-light);
+            margin-top: 3rem;
+        }
+        
+        footer a {
+            color: var(--color-indigo-400);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* --- Search Bar --- */
+        .search-section {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-indigo-400);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+        }
+        
+        .search-button, .theme-toggle-button {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            background-color: var(--color-indigo-500);
+            color: var(--color-white);
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .search-button:hover, .theme-toggle-button:hover {
+            background-color: #4f46e5; /* indigo-600 */
+        }
+        
+        .theme-toggle-button {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            margin-top: 1rem;
+            margin-left: auto; /* Pushes to the right */
+        }
+
+        @media (min-width: 640px) {
+            .theme-toggle-button {
+                margin-top: 0;
+                margin-left: 1rem; /* Spacing from title */
+            }
+        }
+        
+        .theme-toggle-button:hover {
+            background-color: var(--border-color);
+        }
+
+
+        /* --- Typography --- */
+        h1 {
+            font-size: 2.5rem; /* 4xl */
+            font-weight: 800; /* extrabold */
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        @media (min-width: 768px) {
+            h1 {
+                font-size: 3rem; /* 5xl */
+            }
+        }
+
+        h1.gradient-text {
+            background-image: linear-gradient(to right, var(--color-indigo-400), var(--color-purple-500), var(--color-pink-500));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        h2 {
+            font-size: 1.875rem; /* 3xl */
+            font-weight: 700; /* bold */
+            color: var(--text-color-heading);
+            margin-bottom: 1.5rem;
+        }
+
+        header p {
+            font-size: 1.125rem; /* text-lg */
+            color: var(--text-color-light);
+            margin-top: 0.5rem;
+        }
+
+        /* --- Components --- */
+        .status-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+        }
+        
+        .status-box > div {
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+            max-width: 32rem; /* max-w-lg */
+            text-align: center;
+            padding: 1.5rem 2rem;
+        }
+
+        /* Error Message */
+        #error-message .error-box {
+            background-color: var(--color-red-900);
+            border: 1px solid var(--color-red-700);
+            color: var(--color-red-100);
+            max-width: 28rem; /* max-w-md */
+        }
+        #error-message h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Loader */
+        .loader-spinner {
+            animation: spin 1s linear infinite;
+            border-radius: 50%;
+            width: 8rem; /* h-32 w-32 */
+            height: 8rem;
+            border-top: 4px solid var(--color-indigo-400);
+            border-bottom: 4px solid var(--color-indigo-400);
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- Dashboard Grid --- */
+        .grid {
+            display: grid;
+            gap: 1.5rem; /* gap-6 */
+        }
+        
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        
+        @media (min-width: 768px) {
+            .md-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .lg-col-span-1 { grid-column: span 1 / span 1; }
+            .lg-col-span-2 { grid-column: span 2 / span 2; }
+        }
+
+        /* Stat Card */
+        .stat-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s ease;
+        }
+        .stat-card-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-color-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+        .stat-card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color-heading);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .stat-card-subvalue {
+            font-size: 0.875rem;
+            color: var(--text-color-light);
+            margin-top: 0.1rem;
+        }
+
+        /* Chart Container */
+        .chart-box {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px var(--shadow-color), 0 4px 6px -2px var(--shadow-color);
+            border: 1px solid var(--border-color);
+            height: 24rem; /* h-96 */
+            transition: background-color 0.3s ease;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-box {
+                height: 31.25rem; /* h-[500px] */
+            }
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Game Grid */
+        #game-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        
+        @media (min-width: 640px) {
+            #game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (min-width: 768px) {
+            #game-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (min-width: 1024px) {
+            #game-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        
+        /* Game Card */
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px -1px var(--shadow-color), 0 2px 4px -1px var(--shadow-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .game-card:hover, .game-card:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 15px 0 rgba(99, 102, 241, 0.5);
+            outline: none;
+        }
+        .game-card img {
+            width: 100%;
+            height: 12rem; /* h-48 */
+            object-fit: cover;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .game-card-content {
+            padding: 1rem;
+        }
+        .game-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-color-heading);
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .game-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .game-card-row.mb-1 {
+            margin-bottom: 1rem;
+        }
+        .game-card-label {
+            font-size: 0.875rem;
+            color: var(--text-color-light);
+        }
+        .game-card-rating {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        .game-card-metacritic {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .game-card-popularity {
+            font-size: 0.875rem;
+            color: var(--text-color-light);
+        }
+        .game-card-popularity span {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        /* --- Color Utilities --- */
+        .text-green { color: var(--color-green-400); }
+        .text-yellow { color: var(--color-yellow-300); }
+        .text-red { color: var(--color-red-400); }
+        
+        .bg-green { background-color: var(--color-green-700); color: var(--color-green-100); }
+        .bg-yellow { background-color: var(--color-yellow-700); color: var(--color-yellow-100); }
+        .bg-red { background-color: var(--color-red-700); color: var(--color-red-100); }
+        
+        /* --- Modal --- */
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 40;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        #modal-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        #modal-box.modal-visible, #modal-overlay.modal-visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        #modal-close-btn {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 2.5rem;
+            height: 2.5rem;
+            background-color: var(--card-bg);
+            color: var(--text-color-light);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        #modal-close-btn:hover {
+            background-color: var(--border-color);
+            color: var(--text-color-heading);
+            transform: rotate(90deg);
+        }
+        
+        #modal-content {
+            padding: 2rem;
+        }
+        
+        #modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        #modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color-heading);
+            margin-bottom: 1rem;
+        }
+        
+        #modal-description {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            white-space: pre-wrap; /* Preserves line breaks from raw text */
+        }
+        
+        #modal-loader {
+            width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #modal-loader .loader-spinner {
+            width: 4rem;
+            height: 4rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <div class="title-group">
+                <h1 id="home-button" class="gradient-text" title="Back to Trending">Esports & Gaming Stats Dashboard</h1>
+                <p>Powered by the RAWG.io API</p>
+            </div>
+            <button id="theme-toggle" class="theme-toggle-button">Light Mode</button>
+        </header>
+        
+        <!-- Search Bar -->
+        <section class="search-section">
+            <input type="search" id="search-input" class="search-input" placeholder="Search for a game (e.g., 'Cyberpunk 2077')">
+            <button id="search-button" class="search-button">Search</button>
+        </section>
+
+        <!-- Loading Spinner (Default) -->
+        <div id="loader" class="status-box">
+            <div class="loader-spinner"></div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="status-box hidden">
+            <div class="error-box">
+                <h3>An Error Occurred</h3>
+                <p id="error-text"></p>
+            </div>
+        </div>
+
+        <!-- Main Dashboard Content (Initially hidden) -->
+        <main id="dashboard-content" class="hidden">
+            <!-- Stats Overview -->
+            <section id="stats-overview" class="grid grid-cols-1 md-grid-cols-3">
+                <!-- Stat cards will be injected here -->
+            </section>
+
+            <!-- Charts Section -->
+            <section id="charts-section">
+                <div class="grid grid-cols-1 lg-grid-cols-3" style="margin-bottom: 1.5rem;">
+                    <div class="lg-col-span-1 chart-box">
+                        <div class="chart-container">
+                            <canvas id="genre-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="lg-col-span-2 chart-box">
+                        <div class="chart-container">
+                            <canvas id="platform-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-box" style="margin-bottom: 1.5rem;">
+                    <div class="chart-container">
+                        <canvas id="score-chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Trending Games Grid -->
+            <section>
+                <h2 id="game-grid-title">Trending Games</h2>
+                <div id="game-grid">
+                    <!-- Game cards will be injected here -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Dashboard created by TEAM 32. All game data provided by <a href="https://rawg.io/" target="_blank" rel="noopener noreferrer">RAWG.io</a>.</p>
+        </footer>
+    </div>
+    
+    <!-- Game Details Modal -->
+    <div id="modal-overlay" class="hidden"></div>
+    <div id="modal-box" class="hidden">
+        <button id="modal-close-btn">&times;</button>
+        <div id="modal-loader">
+            <div class="loader-spinner"></div>
+        </div>
+        <div id="modal-content" class="hidden">
+            <img id="modal-image" src="" alt="Game Image">
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // API Key is now safely on the server!
+ 
+        let genreChart, platformChart, scoreChart;
+
+        let globalGenreData = [], globalPlatformData = [], globalScoreData = [];
+        
+        // DOM Elements
+        const loader = document.getElementById('loader');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const statsOverview = document.getElementById('stats-overview');
+        const gameGrid = document.getElementById('game-grid');
+        const gameGridTitle = document.getElementById('game-grid-title');
+        const chartsSection = document.getElementById('charts-section');
+        
+        // Theme Toggle
+        const themeToggleButton = document.getElementById('theme-toggle');
+
+        // Search
+        const searchInput = document.getElementById('search-input');
+        const searchButton = document.getElementById('search-button');
+        const homeButton = document.getElementById('home-button');
+        
+        // Modal
+        const modalOverlay = document.getElementById('modal-overlay');
+        const modalBox = document.getElementById('modal-box');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+        const modalContent = document.getElementById('modal-content');
+        const modalLoader = document.getElementById('modal-loader');
+        const modalImage = document.getElementById('modal-image');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDescription = document.getElementById('modal-description');
+
+        // Helper: Process data for charts
+        const processDataCount = (items, key) => {
+            const countMap = new Map();
+            items.forEach(item => {
+                countMap.set(item[key], (countMap.get(item[key]) || 0) + 1);
+            });
+            return Array.from(countMap.entries())
+                .sort((a, b) => b[1] - a[1]) // Sort descending
+                .slice(0, 7); // Get top 7
+        };
+
+        // Helper: Chart colors
+        const getChartColors = (numColors) => {
+            const colors = [
+                'rgba(99, 102, 241, 0.7)', // Indigo
+                'rgba(239, 68, 68, 0.7)',  // Red
+                'rgba(59, 130, 246, 0.7)', // Blue
+                'rgba(16, 185, 129, 0.7)', // Emerald
+                'rgba(245, 158, 11, 0.7)', // Amber
+                'rgba(217, 70, 239, 0.7)', // Fuchsia
+                'rgba(14, 165, 233, 0.7)', // Sky
+            ];
+            return colors.slice(0, numColors).map(color => color.replace('0.7', '1'));
+        };
+
+        const getChartBackgroundColors = (numColors) => {
+            const colors = [
+                'rgba(99, 102, 241, 0.7)', // Indigo
+                'rgba(239, 68, 68, 0.7)',  // Red
+                'rgba(59, 130, 246, 0.7)', // Blue
+                'rgba(16, 185, 129, 0.7)', // Emerald
+                'rgba(245, 158, 11, 0.7)', // Amber
+                'rgba(217, 70, 239, 0.7)', // Fuchsia
+                'rgba(14, 165, 233, 0.7)', // Sky
+            ];
+            return colors.slice(0, numColors);
+        };
+        
+        // Helper: Get theme options for charts
+        const getChartThemeOptions = () => {
+            const isLight = document.body.classList.contains('light-theme');
+            const style = getComputedStyle(document.body);
+            
+            return {
+                font: { family: 'Inter, sans-serif' },
+                color: isLight ? style.getPropertyValue('--color-gray-700') : style.getPropertyValue('--color-gray-200'),
+                titleColor: isLight ? style.getPropertyValue('--color-gray-900') : style.getPropertyValue('--color-gray-50'),
+                gridColor: isLight ? style.getPropertyValue('--chart-grid-color') : style.getPropertyValue('--chart-grid-color'),
+                angleLineColor: isLight ? style.getPropertyValue('--chart-angle-color') : style.getPropertyValue('--chart-angle-color'),
+                tickBackdrop: isLight ? style.getPropertyValue('--chart-tick-backdrop') : style.getPropertyValue('--chart-tick-backdrop'),
+                tickColor: isLight ? style.getPropertyValue('--color-gray-900') : style.getPropertyValue('--color-gray-900'),
+            };
+        };
+        
+        // Render: Stat Card Component
+        const createStatCard = ({ title, value, subValue }) => `
+            <div class="stat-card">
+                <h4 class="stat-card-title">${title}</h4>
+                <p class="stat-card-value" title="${value}">${value}</p>
+                <p class="stat-card-subvalue">${subValue}</p>
+            </div>
+        `;
+
+        // Render: Game Card Component
+        const createGameCard = (game) => {
+            const ratingColor = game.rating >= 4 ? 'text-green' : game.rating >= 3 ? 'text-yellow' : 'text-red';
+            const metricColor = game.metacritic > 75 ? 'bg-green' : game.metacritic > 50 ? 'bg-yellow' : 'bg-red';
+            
+            return `
+            <div class="game-card" data-game-id="${game.id}" role="button" tabindex="0" aria-label="View details for ${game.name}">
+                <img
+                    src="${game.background_image || 'https://placehold.co/600x400/1f2937/374151?text=No+Image'}"
+                    alt="${game.name}"
+                    onerror="this.src='https://placehold.co/600x400/1f2937/374151?text=No+Image';"
+                />
+                <div class="game-card-content">
+                    <h3 title="${game.name}">${game.name}</h3>
+                    <div class="game-card-row">
+                        <span class="game-card-label">Rating:</span>
+                        <span class="game-card-rating ${ratingColor}">
+                            ${game.rating.toFixed(2)} / 5
+                        </span>
+                    </div>
+                    <div class="game-card-row mb-1">
+                        <span class="game-card-label">Metacritic:</span>
+                        <span class="game-card-metacritic ${metricColor}">
+                            ${game.metacritic || 'N/A'}
+                        </span>
+                    </div>
+                    <div class="game-card-popularity">
+                        <span>Popularity (Added):</span> ${game.added.toLocaleString()}
+                    </div>
+                </div>
+            </div>
+        `;
+        }
+        
+        // Render: Charts
+        const renderCharts = (genreData, platformData, scoreData) => {
+            const theme = getChartThemeOptions();
+
+            // Genre Chart (Doughnut)
+            const genreCtx = document.getElementById('genre-chart').getContext('2d');
+            if(genreChart) genreChart.destroy();
+            genreChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreData.map(item => item[0]),
+                    datasets: [{
+                        label: 'Games by Genre',
+                        data: genreData.map(item => item[1]),
+                        backgroundColor: getChartBackgroundColors(genreData.length),
+                        borderColor: getChartColors(genreData.length),
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: theme.color, font: theme.font }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 7 Genres in Trending Games',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    }
+                }
+            });
+
+            // Platform Chart (Bar)
+            const platformCtx = document.getElementById('platform-chart').getContext('2d');
+            if(platformChart) platformChart.destroy();
+            platformChart = new Chart(platformCtx, {
+                type: 'bar',
+                data: {
+                    labels: platformData.map(item => item[0]),
+                    datasets: [{
+                        label: 'Games by Platform',
+                        data: platformData.map(item => item[1]),
+                        backgroundColor: getChartBackgroundColors(platformData.length),
+                        borderColor: getChartColors(platformData.length),
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Top 7 Platforms for Trending Games',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: theme.color },
+                            grid: { color: theme.gridColor }
+                        },
+                        y: {
+                            ticks: { color: theme.color },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            
+            // Score Chart (Radar)
+            const scoreCtx = document.getElementById('score-chart').getContext('2d');
+            if(scoreChart) scoreChart.destroy();
+            scoreChart = new Chart(scoreCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Exceptional (90+)', 'Great (80-89)', 'Good (70-79)', 'Mixed (50-69)', 'Low (<50)'],
+                    datasets: [{
+                        label: 'Number of Games by Metacritic Score',
+                        data: scoreData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(16, 185, 129, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: theme.color } },
+                        title: {
+                            display: true,
+                            text: 'Metacritic Score Distribution (Top 100)',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: theme.angleLineColor },
+                            grid: { color: theme.gridColor },
+                            pointLabels: {
+                                color: theme.color,
+                                font: { size: 12, ...theme.font }
+                            },
+                            ticks: {
+                                color: theme.tickColor,
+                                backdropColor: theme.tickBackdrop,
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Main data fetching function
+        const fetchData = async () => {
+            loader.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            dashboardContent.classList.add('hidden');
+            
+            // Show stats and charts (in case they were hidden by search)
+            statsOverview.classList.remove('hidden');
+            chartsSection.classList.remove('hidden');
+            gameGridTitle.textContent = 'Trending Games';
+
+            try {
+                // CHANGED: Fetch from your own server's endpoint
+                const response = await fetch(`/api/trending`);
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}. Check your network connection.`);
+                }
+                const data = await response.json();
+                
+                const games = data.results || [];
+                const totalGames = data.count;
+                const topRatedGame = games.reduce((prev, current) => (prev.rating > current.rating) ? prev : current);
+                const mostPopularGame = games[0]; // Already sorted by -added
+
+                
+                // --- Process Data ---
+                // Genres
+                const allGenres = games.flatMap(game => game.genres.map(g => g.name));
+                globalGenreData = processDataCount(allGenres.map(name => ({ name })), 'name');
+
+                // Platforms
+                const allPlatforms = games.flatMap(game => game.platforms.map(p => p.platform.name));
+                globalPlatformData = processDataCount(allPlatforms.map(name => ({ name })), 'name');
+                
+                // Score Distribution (Metacritic)
+                const scores = games.map(game => game.metacritic).filter(score => score > 0);
+                globalScoreData = [
+                    scores.filter(s => s >= 90).length,
+                    scores.filter(s => s >= 80 && s < 90).length,
+                    scores.filter(s => s >= 70 && s < 80).length,
+                    scores.filter(s => s >= 50 && s < 70).length,
+                    scores.filter(s => s < 50).length,
+                ];
+
+                
+                // --- Render Data ---
+                // Stats
+                statsOverview.innerHTML = `
+                    ${createStatCard({ title: "Top Rated (This Week)", value: topRatedGame?.name, subValue: `Rating: ${topRatedGame?.rating.toFixed(2)}` })}
+                    ${createStatCard({ title: "Most Popular (This Week)", value: mostPopularGame?.name, subValue: `Added by: ${mostPopularGame?.added.toLocaleString()}` })}
+                    ${createStatCard({ title: "Total Games in DB", value: totalGames.toLocaleString(), subValue: "Across all platforms" })}
+                `;
+                
+                // Charts
+                renderCharts(globalGenreData, globalPlatformData, globalScoreData);
+                
+                // Game Grid
+                gameGrid.innerHTML = games.slice(0, 24).map(createGameCard).join('');
+
+                // Show content
+                loader.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+
+            } catch (err) {
+                console.error(err);
+                errorText.textContent = err.message;
+                loader.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+            }
+        };
+        
+        // Search Function
+        const searchGames = async (query) => {
+            if (!query) return;
+            
+            loader.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+            dashboardContent.classList.add('hidden');
+            
+            // Hide stats and charts during search
+            statsOverview.classList.add('hidden');
+            chartsSection.classList.add('hidden');
+            gameGridTitle.textContent = `Search Results for "${query}"`;
+            
+            try {
+                // CHANGED: Fetch from your own server's endpoint
+                const response = await fetch(`/api/search/${encodeURIComponent(query)}`);
+                if (!response.ok) {
+                    throw new Error(`Search failed with status ${response.status}.`);
+                }
+                const data = await response.json();
+                const games = data.results || [];
+                
+                if (games.length === 0) {
+                    gameGrid.innerHTML = `<p>No games found for "${query}".</p>`;
+                } else {
+                    gameGrid.innerHTML = games.map(createGameCard).join('');
+                }
+
+                loader.classList.add('hidden');
+                dashboardContent.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error(err);
+                errorText.textContent = err.message;
+                loader.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+            }
+        };
+    
+        // --- Modal ---
+        const openModal = () => {
+            modalOverlay.classList.remove('hidden');
+            modalBox.classList.remove('hidden');
+            setTimeout(() => {
+                modalOverlay.classList.add('modal-visible');
+                modalBox.classList.add('modal-visible');
+            }, 10);
+            document.body.classList.add('modal-open');
+        };
+        
+        const closeModal = () => {
+            modalOverlay.classList.remove('modal-visible');
+            modalBox.classList.remove('modal-visible');
+            setTimeout(() => {
+                modalOverlay.classList.add('hidden');
+                modalBox.classList.add('hidden');
+            }, 300);
+            document.body.classList.remove('modal-open');
+        };
+        
+        const showGameDetails = async (gameId) => {
+            openModal();
+            modalContent.classList.add('hidden');
+            modalLoader.classList.remove('hidden');
+            
+            try {
+                // CHANGED: Fetch from your own server's endpoint
+                const response = await fetch(`/api/game/${gameId}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch game details.`);
+                }
+                const game = await response.json();
+                
+                modalImage.src = game.background_image || 'https://placehold.co/600x400/1f2937/374151?text=No+Image';
+                modalImage.alt = game.name;
+                modalTitle.textContent = game.name;
+                modalDescription.textContent = game.description_raw || "No description available.";
+                
+                modalLoader.classList.add('hidden');
+                modalContent.classList.remove('hidden');
+                
+            } catch (err) {
+                console.error(err);
+                modalContent.innerHTML = `<p>Error loading game details. Please try again.</p>`;
+                modalLoader.classList.add('hidden');
+                modalContent.classList.remove('hidden');
+            }
+        };
+
+        // --- Theme Toggle ---
+        const toggleTheme = () => {
+            document.body.classList.toggle('light-theme');
+            const isLight = document.body.classList.contains('light-theme');
+            themeToggleButton.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+            
+            // Re-render charts with new theme colors
+            if (globalGenreData.length > 0) { // Only if data is loaded
+                renderCharts(globalGenreData, globalPlatformData, globalScoreData);
+            }
+        };
+
+        
+        // --- Event Listeners ---
+        themeToggleButton.addEventListener('click', toggleTheme);
+
+        // Search
+        searchButton.addEventListener('click', () => searchGames(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchGames(searchInput.value);
+            }
+        });
+        
+        // Home Button
+        homeButton.addEventListener('click', fetchData);
+        
+        // Game Card Clicks
+        gameGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.game-card');
+            if (card && card.dataset.gameId) {
+                showGameDetails(card.dataset.gameId);
+            }
+        });
+        
+        gameGrid.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const card = e.target.closest('.game-card');
+                if (card && card.dataset.gameId) {
+                    e.preventDefault(); // Prevent space from scrolling
+                    showGameDetails(card.dataset.gameId);
+                }
+            }
+        });
+        
+        // Modal Close
+        modalCloseBtn.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal);
+
+
+        // Entry Point
+        window.onload = () => {
+            // CHANGED: Just fetch data immediately.
+            fetchData();
+        };
+    </script>
+
+</body>
+</html>
