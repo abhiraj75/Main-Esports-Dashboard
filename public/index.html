@@ -766,7 +766,132 @@
         }
         
         // Render: Charts
-        
+        const renderCharts = (genreData, platformData, scoreData) => {
+            const theme = getChartThemeOptions();
+
+            // Genre Chart (Doughnut)
+            const genreCtx = document.getElementById('genre-chart').getContext('2d');
+            if(genreChart) genreChart.destroy();
+            genreChart = new Chart(genreCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genreData.map(item => item[0]),
+                    datasets: [{
+                        label: 'Games by Genre',
+                        data: genreData.map(item => item[1]),
+                        backgroundColor: getChartBackgroundColors(genreData.length),
+                        borderColor: getChartColors(genreData.length),
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: theme.color, font: theme.font }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 7 Genres in Trending Games',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    }
+                }
+            });
+
+            // Platform Chart (Bar)
+            const platformCtx = document.getElementById('platform-chart').getContext('2d');
+            if(platformChart) platformChart.destroy();
+            platformChart = new Chart(platformCtx, {
+                type: 'bar',
+                data: {
+                    labels: platformData.map(item => item[0]),
+                    datasets: [{
+                        label: 'Games by Platform',
+                        data: platformData.map(item => item[1]),
+                        backgroundColor: getChartBackgroundColors(platformData.length),
+                        borderColor: getChartColors(platformData.length),
+                        borderWidth: 1,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Top 7 Platforms for Trending Games',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: theme.color },
+                            grid: { color: theme.gridColor }
+                        },
+                        y: {
+                            ticks: { color: theme.color },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+            
+            // Score Chart (Radar)
+            const scoreCtx = document.getElementById('score-chart').getContext('2d');
+            if(scoreChart) scoreChart.destroy();
+            scoreChart = new Chart(scoreCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Exceptional (90+)', 'Great (80-89)', 'Good (70-79)', 'Mixed (50-69)', 'Low (<50)'],
+                    datasets: [{
+                        label: 'Number of Games by Metacritic Score',
+                        data: scoreData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.4)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(16, 185, 129, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(16, 185, 129, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: theme.color } },
+                        title: {
+                            display: true,
+                            text: 'Metacritic Score Distribution (Top 100)',
+                            color: theme.titleColor,
+                            font: { size: 18, ...theme.font }
+                        }
+                    },
+                    scales: {
+                        r: {
+                            angleLines: { color: theme.angleLineColor },
+                            grid: { color: theme.gridColor },
+                            pointLabels: {
+                                color: theme.color,
+                                font: { size: 12, ...theme.font }
+                            },
+                            ticks: {
+                                color: theme.tickColor,
+                                backdropColor: theme.tickBackdrop,
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        };
 
         // Main data fetching function
         const fetchData = async () => {
