@@ -678,6 +678,20 @@
                 .slice(0, 7); // Get top 7
         };
 
+        // Helper: Chart colors
+        const getChartColors = (numColors) => {
+            const colors = [
+                'rgba(99, 102, 241, 0.7)', // Indigo
+                'rgba(239, 68, 68, 0.7)',  // Red
+                'rgba(59, 130, 246, 0.7)', // Blue
+                'rgba(16, 185, 129, 0.7)', // Emerald
+                'rgba(245, 158, 11, 0.7)', // Amber
+                'rgba(217, 70, 239, 0.7)', // Fuchsia
+                'rgba(14, 165, 233, 0.7)', // Sky
+            ];
+            return colors.slice(0, numColors).map(color => color.replace('0.7', '1'));
+        };
+
         
         const getChartBackgroundColors = (numColors) => {
             const colors = [
