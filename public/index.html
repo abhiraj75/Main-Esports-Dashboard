@@ -8,7 +8,77 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --- Global Styles & Resets --- */
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            /* Color Palette */
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f3f4f6;
+            --color-gray-200: #e5e7eb;
+            --color-gray-300: #d1d5db;
+            --color-gray-400: #9ca3af;
+            --color-gray-500: #6b7280;
+            --color-gray-700: #374151;
+            --color-gray-800: #1f2937;
+            --color-gray-900: #111827;
+            
+            --color-indigo-400: #818cf8;
+            --color-indigo-500: #6366f1;
+            --color-purple-500: #a855f7;
+            --color-pink-500: #ec4899;
+            
+            --color-yellow-100: #fef9c3;
+            --color-yellow-300: #fde047;
+            --color-yellow-600: #ca8a04;
+            --color-yellow-700: #a16207;
 
+            --color-green-100: #dcfce7;
+            --color-green-400: #4ade80;
+            --color-green-700: #15803d;
+
+            --color-red-100: #fee2e2;
+            --color-red-400: #f87171;
+            --color-red-700: #b91c1c;
+            --color-red-900: #7f1d1d;
+            
+            --color-white: #ffffff;
+            --color-black: #000000;
+            
+            /* --- Dark Theme (Default) --- */
+            --bg-color: var(--color-gray-900);
+            --text-color: var(--color-gray-200);
+            --text-color-light: var(--color-gray-400);
+            --text-color-heading: var(--color-gray-50);
+            --card-bg: var(--color-gray-800);
+            --border-color: var(--color-gray-700);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --chart-grid-color: var(--color-gray-700);
+            --chart-angle-color: var(--color-gray-600);
+            --chart-tick-backdrop: var(--color-gray-800);
+        }
+        
+        .light-theme {
+            /* --- Light Theme Overrides --- */
+            --bg-color: var(--color-gray-100);
+            --text-color: var(--color-gray-700);
+            --text-color-light: var(--color-gray-500);
+            --text-color-heading: var(--color-gray-900);
+            --card-bg: var(--color-white);
+            --border-color: var(--color-gray-300);
+            --shadow-color: rgba(0, 0, 0, 0.05);
+            --chart-grid-color: var(--color-gray-300);
+            --chart-angle-color: var(--color-gray-400);
+            --chart-tick-backdrop: var(--color-gray-100);
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
         
         body.modal-open {
             overflow: hidden;
